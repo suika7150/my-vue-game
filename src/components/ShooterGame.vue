@@ -67,20 +67,25 @@ const score = ref(0);
 const bullets = ref([]);
 const monsters = ref([]);
 
+const leftPressed = ref(false);
+const rightPressed = ref(false);
+
+const shootPressed = ref(false);
+
+const speed = 4;
+let lastShot = 0;
+
 // 鍵盤控制
-function handleKey(e) {
-  if (e.key === "ArrowLeft") {
-    playerX.value = Math.max(0, playerX.value - 20);
-  }
-  if (e.key === "ArrowRight") {
-    playerX.value = Math.min(gameWidth - 40, playerX.value + 20);
-  }
-  if (e.key === " ") {
-    bullets.value.push({
-      x: playerX.value + 17,
-      y: gameHeight - 60,
-    });
-  }
+function handleKeyDown(e) {
+  if (e.key === "ArrowLeft") leftPressed.value = true;
+  if (e.key === "ArrowRight") rightPressed.value = true;
+  if (e.key === " ") shootPressed.value = true;
+}
+
+function handleKeyUp(e) {
+  if (e.key === "ArrowLeft") leftPressed.value = false;
+  if (e.key === "ArrowRight") rightPressed.value = false;
+  if (e.key === " ") shootPressed.value = false;
 }
 
 // 生成怪
@@ -100,6 +105,23 @@ function hit(a, b, size = 40) {
 
 // 遊戲主迴圈
 function gameLoop() {
+  // 角色移動
+  if (leftPressed.value) {
+    playerX.value = Math.max(0, playerX.value - speed);
+  }
+  if (rightPressed.value) {
+    playerX.value = Math.min(gameWidth - 40, playerX.value + speed);
+  }
+
+  //射擊
+  if (shootPressed.value && Date.now() - lastShot > 250) {
+    bullets.value.push({
+      x: playerX.value + 17,
+      y: gameHeight - 60,
+    });
+    lastShot = Date.now();
+  }
+
   // 子彈往上
   bullets.value.forEach((b, bi) => {
     b.y -= 8;
@@ -127,7 +149,8 @@ function gameLoop() {
 }
 
 onMounted(() => {
-  window.addEventListener("keydown", handleKey);
+  window.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("keyup", handleKeyUp);
   setInterval(spawnMonster, 1000);
   gameLoop();
 });
