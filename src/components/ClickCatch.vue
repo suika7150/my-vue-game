@@ -11,7 +11,7 @@
         background: #eef;
       "
     >
-      <!-- 小人 -->
+      <!-- 角色 -->
       <div
         id="player"
         :style="{
@@ -24,7 +24,7 @@
         }"
       ></div>
 
-      <!-- 掉落寶物 -->
+      <!-- 掉落物 -->
       <div
         v-for="(item, index) in items"
         :key="index"
@@ -56,10 +56,9 @@ const score = ref(0);
 const playerX = ref(gameWidth / 2 - playerWidth / 2);
 const playerY = gameHeight - playerHeight - 10;
 
-// 掉落寶物陣列
 const items = ref([]);
 
-// 隨機生成寶物
+// 隨機生成物
 function spawnItem() {
   items.value.push({
     x: Math.random() * (gameWidth - itemSize),
@@ -72,7 +71,6 @@ function moveItems() {
   items.value.forEach((item, index) => {
     item.y += 5;
 
-    // 碰到小人就加分
     if (
       item.y + itemSize >= playerY &&
       item.x + itemSize >= playerX.value &&
@@ -82,14 +80,13 @@ function moveItems() {
       items.value.splice(index, 1);
     }
 
-    // 超出遊戲區域就移除
     if (item.y > gameHeight) {
       items.value.splice(index, 1);
     }
   });
 }
 
-// 鍵盤控制小人
+// 鍵盤控制
 function handleKey(e) {
   const step = 20;
   if (e.key === "ArrowLeft") playerX.value = Math.max(0, playerX.value - step);
@@ -100,7 +97,7 @@ function handleKey(e) {
 onMounted(() => {
   window.addEventListener("keydown", handleKey);
 
-  // 每 1 秒生成一個寶物
+  // 每 1 秒生成一個物品
   setInterval(spawnItem, 1000);
 
   // 遊戲循環
